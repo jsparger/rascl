@@ -5,7 +5,7 @@ namespace rascl {
 
 class InteriorRasterizer
 {
-	static const std::string kTestAllCorners(
+	static const std::string kTestCorners(
 	BOOST_COMPUTE_STRINGIZE_SOURCE(
 		
 		static float2 perp(float2 p)
@@ -29,7 +29,7 @@ class InteriorRasterizer
 			return ((b1 == b2) & (b2 == b3));
 		}
 		
-		kernel void testAllCorners(global uint* corners, global float2* triangle, constant uint2 np, constant float2 origin, constant float2 pixelSize, )
+		kernel void testCorners(global uint* corners, global float2* triangle, constant uint2 np, constant float2 origin, constant float2 pixelSize, )
 		{
 			const uint2 id = {get_global_id(0), get_global_id(1)};
 			const uint2 offset = {get_global_offset(0), get_global_offset(1)};
@@ -40,6 +40,18 @@ class InteriorRasterizer
 			const float2 pos = (id * pixelSize) + origin;
 			const uint idx = bbid.y*np.x + bbid.x;
 			corners[idx] = inside(triangle, pos);
+		}
+	)
+	);
+	
+	static const std::string kFillInterior(
+	BOOST_COMPUTE_STRINGIZE_SOURCE(
+		
+		kernel void fillInterior(global float* image, constant float value, constant uint2 np)
+		{
+			// TODO: check for pixel out of bounding box
+			// TODO: check if all four corners of pixel inside box, if so add value
+			// TODO: Question: how can we move the corners into local memory efficiently and share? Each corner value will be used by four pixels.
 		}
 	)
 	);
