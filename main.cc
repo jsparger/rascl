@@ -13,4 +13,6 @@ int main()
 	rascl::Triangle triangle(p1, p2, p3);
 	
 	r.draw(triangle, value);
+	
+	
 }
