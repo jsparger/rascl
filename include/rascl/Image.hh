@@ -22,6 +22,7 @@ public:
 	Image(compute::command_queue queue, ImageParams params, std::vector<float> initial);
 	virtual ~Image() {;}
 	virtual std::vector<float> contents();
+	virtual const compute::vector<float>& deviceVector():
 		
 protected:
 	virtual void push();
