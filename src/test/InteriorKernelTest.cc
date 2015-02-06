@@ -3,6 +3,7 @@
 #include "rascl/detail/test_corners.hh"
 #include <boost/compute/core.hpp>
 #include <boost/compute/container.hpp>
+#include <chrono>
 
 namespace compute = boost::compute;
 
@@ -19,7 +20,8 @@ void testCorners()
 	std::string kernelSource = rascl::detail::kTestCorners::source;
 	std::string kernelName = rascl::detail::kTestCorners::name;
 	cl_uint initialValue = 7;
-	Triangle hostTriangle = make_triangle({0,0},{12.5,25},{25,0}); 
+	// Triangle hostTriangle = make_triangle({0,0},{12.5,25},{25,0});
+	Triangle hostTriangle = make_triangle({1,5},{10,1},{5,10});
 	unsigned int npx = 25;
 	unsigned int npy = 25;
 	compute::uint2_ np = {npx,npy};
@@ -54,6 +56,7 @@ void testCorners()
 		throw;
 	}
 
+	
 	// set the kernel args
 	kernel.set_arg(0, deviceVec);
 	kernel.set_arg(1, deviceTriangle);
@@ -66,10 +69,26 @@ void testCorners()
 	size_t globalWorkOffset[2] = {0,0};
 	size_t globalWorkSize[2] = {npx,npy};
 	size_t* localWorkSize = nullptr;
+	
+	using std::chrono::duration_cast;
+	using std::chrono::nanoseconds;
+	typedef std::chrono::high_resolution_clock clock;
+
+	auto start = clock::now();
+	
+	int num = 1e6;
+	for (int i = 0; i < num; ++i) {
 	queue.enqueue_nd_range_kernel(
 		kernel, nDims, globalWorkOffset, globalWorkSize, localWorkSize);
+		if(i%1000 == 0) queue.finish(); 
+	}
 
 	queue.finish();
+	
+	auto end = clock::now();
+	std::cout << duration_cast<nanoseconds>(end-start).count()/1e6 << "ms\n";
+	std::cout << duration_cast<nanoseconds>(end-start).count()/1e3/num << "us per triangle\n";
+	
 	
 	// copy device vector into host vector
 	compute::copy(deviceVec.begin(), deviceVec.end(), hostVec.begin(), queue);
