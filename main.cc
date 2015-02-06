@@ -3,6 +3,7 @@
 int main()
 {
 	testCorners();
+	focusPlanes();
 	return 0;
 }
 

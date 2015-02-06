@@ -9,9 +9,8 @@ namespace detail {
 	const std::string kFocusPlanes::source = std::string(
 	BOOST_COMPUTE_STRINGIZE_SOURCE(
 		
-		kernel void focus_planes(global float* image, constant const float2* triangle, const uint2 np, const float2 origin, const float2 pixelSize)
+		kernel void focus_planes(global float* image, constant const float2* triangle, const uint2 np, const float2 origin, const float2 pixelSize, float value)
 		{
-			float value = 1.0;
 			// get y coordinate
 			const uint ix = get_global_id(0);
 			const uint iy = get_global_id(1);
@@ -44,7 +43,7 @@ namespace detail {
 			rightPoint = (rightSide < rightPoint) ? rightSide : rightPoint;
 			
 			// assign the value.
-			image[index] = value*(rightPoint - leftPoint)/pixelSize.x;
+			image[index] += value*(rightPoint - leftPoint)/pixelSize.x;
 		}
 	)
 	);
